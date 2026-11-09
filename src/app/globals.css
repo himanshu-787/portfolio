@@ -86,3 +86,7 @@ body {
 .case-study td { color: var(--muted); }
 .case-study .katex { color: var(--fg); }
 .case-study .katex-display { overflow-x: auto; overflow-y: hidden; }
+
+/* Keep anchored headings clear of the sticky navbar */
+.case-study h2,
+.case-study h3 { scroll-margin-top: 5rem; }

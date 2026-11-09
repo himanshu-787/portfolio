@@ -10,13 +10,18 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "github-slugger": "^2.0.0",
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.12.0",
     "katex": "^0.19.1",
     "lucide-react": "^1.70.0",
     "next": "16.4.5",
     "next-mdx-remote": "^6.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "rehype-highlight": "^7.0.2",
     "rehype-katex": "^7.0.1",
+    "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "tailwind-merge": "^3.7.0"
