@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "eval:retrieval": "tsx scripts/eval-retrieval.ts"
-
+    "eval:retrieval": "tsx scripts/eval-retrieval.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

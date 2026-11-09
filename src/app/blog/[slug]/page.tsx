@@ -6,9 +6,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import PostCard from "@/components/blog/PostCard";
+import JsonLd from "@/components/seo/JsonLd";
 import { mdxComponents } from "@/components/mdx/mdx-components";
 import { mdxOptions } from "@/lib/mdx";
 import { formatDate, getAllPosts, getPost, getRelated } from "@/lib/blog";
+import { site } from "@/data/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -37,6 +39,18 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-20">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: post.title,
+          description: post.description,
+          datePublished: post.date,
+          keywords: post.tags.join(", "),
+          url: `${site.url.replace(/\/$/, "")}/blog/${post.slug}`,
+          author: { "@type": "Person", name: site.name },
+        }}
+      />
       <Link href="/blog" className="inline-flex items-center gap-1 text-sm text-muted hover:text-fg">
         <ArrowLeft size={16} /> All posts
       </Link>
