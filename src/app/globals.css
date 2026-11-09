@@ -45,3 +45,44 @@ body {
   html { scroll-behavior: auto; }
   * { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Long-form content (case studies, blog) ---------- */
+.case-study h2 { margin-top: 2.5rem; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
+.case-study h3 { margin-top: 1.75rem; font-size: 1.125rem; font-weight: 600; }
+.case-study p,
+.case-study li { color: var(--muted); line-height: 1.75; }
+.case-study p { margin-top: 1rem; }
+.case-study ul { margin-top: 1rem; list-style: disc; padding-left: 1.25rem; }
+.case-study ol { margin-top: 1rem; list-style: decimal; padding-left: 1.25rem; }
+.case-study strong { color: var(--fg); }
+.case-study a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.case-study code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--surface);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+.case-study pre {
+  margin-top: 1rem;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.case-study pre code { background: none; padding: 0; }
+.case-study table {
+  display: block;
+  margin-top: 1rem;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.case-study th,
+.case-study td { border: 1px solid var(--line); padding: 0.5rem 0.75rem; text-align: left; }
+.case-study th { background: var(--surface); color: var(--fg); }
+.case-study td { color: var(--muted); }
+.case-study .katex { color: var(--fg); }
+.case-study .katex-display { overflow-x: auto; overflow-y: hidden; }

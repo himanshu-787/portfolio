@@ -1,0 +1,80 @@
+## Overview
+
+GridPINN is a physics-informed neural network (PINN) that predicts generator dispatch and bus voltages for AC optimal power flow (AC-OPF). The training loss includes power-balance and constraint terms, so predictions are pushed toward physically feasible operating points.
+
+<Callout title="Status">
+This project is in progress. Sections marked Pending will be filled with measured results, not estimates.
+</Callout>
+
+## Problem statement
+
+AC-OPF chooses generator outputs and voltages that minimise generation cost while satisfying the AC power flow equations and operating limits. Solving it exactly is a nonconvex optimisation problem, and it must be re-solved whenever the load changes.
+
+$$
+\min_{P_g,\,Q_g,\,V,\,\theta} \; \sum_{i \in \mathcal{G}} c_i(P_{g,i})
+$$
+
+subject to the power-balance equations at every bus $i$:
+
+$$
+P_{g,i} - P_{d,i} = V_i \sum_{j} V_j \left( G_{ij}\cos\theta_{ij} + B_{ij}\sin\theta_{ij} \right)
+$$
+
+$$
+Q_{g,i} - Q_{d,i} = V_i \sum_{j} V_j \left( G_{ij}\sin\theta_{ij} - B_{ij}\cos\theta_{ij} \right)
+$$
+
+together with generator limits, voltage magnitude limits and line-flow limits.
+
+## Motivation
+
+A trained network can produce a dispatch in a single forward pass. The open question is whether those predictions stay physically feasible, which is what the physics terms in the loss are meant to improve.
+
+## Approach
+
+The model maps load conditions to generator dispatch and bus voltages. The loss combines supervised fit with physics penalties:
+
+$$
+\mathcal{L} = \mathcal{L}_{\text{data}} + \lambda_{1}\,\mathcal{L}_{\text{balance}} + \lambda_{2}\,\mathcal{L}_{\text{limits}}
+$$
+
+- $\mathcal{L}_{\text{data}}$: error against reference AC-OPF solutions.
+- $\mathcal{L}_{\text{balance}}$: residual of the power-balance equations.
+- $\mathcal{L}_{\text{limits}}$: penalty for violating generator and voltage limits.
+
+## Experimental setup
+
+| Item | Value |
+|---|---|
+| Framework | PyTorch |
+| Power system solver | pandapower |
+| Convex baseline | CVXPY (DC-OPF) |
+| Test system | <Pending>IEEE case name</Pending> |
+| Number of scenarios | <Pending>count</Pending> |
+| Train / validation / test split | <Pending>split</Pending> |
+
+## Baselines
+
+1. A standard neural network trained without physics terms.
+2. DC-OPF solved with CVXPY.
+3. Exact AC-OPF solutions from pandapower, used as the reference.
+
+## Results
+
+| Method | Dispatch error | Constraint violation | Inference time |
+|---|---|---|---|
+| Standard neural network | <Pending /> | <Pending /> | <Pending /> |
+| GridPINN | <Pending /> | <Pending /> | <Pending /> |
+| DC-OPF (CVXPY) | <Pending /> | <Pending /> | <Pending /> |
+| AC-OPF (pandapower) | reference | reference | <Pending /> |
+
+## Limitations
+
+- Penalty-based physics terms reduce constraint violations but do not guarantee feasibility.
+- Results will be reported only on the test systems listed above and may not transfer to larger networks.
+
+## Future work
+
+- Evaluate on larger IEEE systems.
+- Add a feasibility-recovery step after prediction.
+- Run ablations over the loss weights.
