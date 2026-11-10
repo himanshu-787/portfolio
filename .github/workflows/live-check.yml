@@ -22,5 +22,5 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Smoke and link test against the live site
         env:
-          PLAYWRIGHT_BASE_URL: ${{ vars.LIVE_URL }}
+          PLAYWRIGHT_BASE_URL: ${{ vars.LIVE_URL || 'https://portfolio-three-teal-38.vercel.app' }}
         run: npx playwright test e2e/navigation.spec.ts e2e/seo.spec.ts e2e/health.spec.ts --project=desktop
