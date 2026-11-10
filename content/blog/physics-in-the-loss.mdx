@@ -19,9 +19,8 @@ A network trained only to match reference solutions can fit its training data we
 
 A physics-informed neural network adds the rules to the loss. The model is penalised both for being far from the reference and for violating the equations:
 
-$$
+```math
 \mathcal{L} = \mathcal{L}_{\text{data}} + \lambda_{1}\,\mathcal{L}_{\text{balance}} + \lambda_{2}\,\mathcal{L}_{\text{limits}}
-$$
 
 The weights $\lambda_1$ and $\lambda_2$ control how strongly each rule is enforced.
 
@@ -37,15 +36,3 @@ def physics_loss(pred, target, balance_residual, limit_violation, l1=1.0, l2=1.0
     balance = torch.mean(balance_residual ** 2)
     limits = torch.mean(torch.relu(limit_violation) ** 2)
     return data + l1 * balance + l2 * limits
-```
-
-## What this does not guarantee
-
-Penalty terms push predictions toward feasibility but do not enforce it. A small penalty is not zero violation, so constraint violations should always be measured on held-out data and reported.
-
-## How to publish a new post
-
-1. Create `content/blog/your-post-title.mdx` (lowercase letters, numbers and hyphens only).
-2. Add the metadata block at the top with `title`, `description`, `date`, `category` and `tags`.
-3. Write the post using `##` headings, which become the table of contents.
-4. Set `draft: true` to hide it on the live site while keeping it visible in development.

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+// import { useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import { contactSchema } from "@/lib/contact-schema";
 
@@ -13,7 +14,12 @@ export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState("");
-  const startedAt = useRef(Date.now());
+  const startedAt = useRef(0);
+
+useEffect(() => {
+  startedAt.current = Date.now(); // runs once after mount, not during render
+}, []);
+  // const startedAt = useRef(Date.now());
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
