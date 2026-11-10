@@ -51,3 +51,12 @@
 - Deployment: handled by Vercel Git integration in Phase 13, not by this workflow
 - Known issues: GridPINN results Pending; CGPA, GitHub/LinkedIn/email, AURA status [CONFIRM]; audit step is informational
 - Next: Phase 13 (Vercel deployment)
+
+- Current phase: 13 (files written; deployment results pending your run)
+- Added: DEPLOYMENT.md
+- Modified: playwright.config.ts (PLAYWRIGHT_BASE_URL support)
+- Live URL: ____   Custom domain: ____
+- Env vars configured in Vercel: (list when done)
+- Tests executed: live smoke test ____; e2e against live URL ____; PageSpeed ____
+- Known issues: in-memory rate limits are best effort; assistant public/hidden decision: ____
+- Next: Phase 14 (analytics, error monitoring, uptime)
