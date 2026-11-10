@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: title, template: `%s | ${site.name}` },
   description: site.tagline,
-  alternates: { canonical: "./" }, // each page points at its own URL
+  alternates: { canonical: "./" },
   openGraph: {
     type: "website",
     siteName: site.name,
@@ -38,6 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

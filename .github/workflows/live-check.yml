@@ -1,0 +1,26 @@
+name: Live site check
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke and link test against the live site
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ vars.LIVE_URL }}
+        run: npx playwright test e2e/navigation.spec.ts e2e/seo.spec.ts e2e/health.spec.ts --project=desktop
