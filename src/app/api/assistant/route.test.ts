@@ -1,91 +1,66 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const send = vi.hoisted(() => vi.fn());
-vi.mock("resend", () => ({
-  Resend: class {
-    emails = { send };
+const create = vi.hoisted(() => vi.fn());
+vi.mock("@anthropic-ai/sdk", () => ({
+  default: class {
+    messages = { create };
   },
 }));
 
 import { POST } from "./route";
 
 let n = 0;
-function req(body: unknown, headers: Record<string, string> = {}) {
-  n += 1; // unique IP per request so the rate limiter never interferes
-  return new Request("http://localhost/api/contact", {
+function ask(question: string) {
+  n += 1;
+  return new Request("http://localhost/api/assistant", {
     method: "POST",
-    headers: { "content-type": "application/json", "x-forwarded-for": `10.0.0.${n}`, ...headers },
-    body: typeof body === "string" ? body : JSON.stringify(body),
+    headers: { "content-type": "application/json", "x-forwarded-for": `10.1.0.${n}` },
+    body: JSON.stringify({ question }),
   });
 }
 
-const valid = () => ({
-  name: "Ada Lovelace",
-  email: "ada@example.com",
-  message: "Hello, I would like to talk about an internship.",
-  startedAt: Date.now() - 10_000,
-});
-
 beforeEach(() => {
-  send.mockReset();
-  send.mockResolvedValue({ error: null });
-  process.env.RESEND_API_KEY = "re_test";
-  process.env.CONTACT_TO_EMAIL = "me@example.com";
+  create.mockReset();
+  process.env.ANTHROPIC_API_KEY = "sk-test";
+  vi.spyOn(console, "log").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("POST /api/contact", () => {
-  it("sends an email for a valid message", async () => {
-    const res = await POST(req(valid()));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
-    expect(send).toHaveBeenCalledTimes(1);
-    expect(send.mock.calls[0][0]).toMatchObject({ to: "me@example.com", replyTo: "ada@example.com" });
+describe("POST /api/assistant", () => {
+  it("is unavailable without an API key", async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    expect((await POST(ask("What is GridPINN?"))).status).toBe(503);
   });
 
-  it("returns field errors for invalid input", async () => {
-    const res = await POST(req({ ...valid(), name: "A" }));
-    expect(res.status).toBe(400);
+  it("rejects too-short questions", async () => {
+    expect((await POST(ask("hi"))).status).toBe(400);
+  });
+
+  it("answers off-topic questions without calling the LLM", async () => {
+    const res = await POST(ask("What is the capital of France?"));
     const json = await res.json();
-    expect(json.fields.name).toBeTruthy();
-    expect(send).not.toHaveBeenCalled();
-  });
-
-  it("silently drops honeypot submissions", async () => {
-    const res = await POST(req({ ...valid(), website: "http://spam.example" }));
     expect(res.status).toBe(200);
-    expect(send).not.toHaveBeenCalled();
+    expect(json.answer).toContain("I don't have information");
+    expect(create).not.toHaveBeenCalled();
   });
 
-  it("silently drops submissions filled in under 2 seconds", async () => {
-    const res = await POST(req({ ...valid(), startedAt: Date.now() }));
-    expect(res.status).toBe(200);
-    expect(send).not.toHaveBeenCalled();
+  it("calls the LLM for on-topic questions and returns retrieved sources", async () => {
+    create.mockResolvedValue({
+      content: [{ type: "text", text: "GridPINN is in progress." }],
+      usage: { input_tokens: 10, output_tokens: 5 },
+    });
+    const res = await POST(ask("What is GridPINN?"));
+    const json = await res.json();
+    expect(json.answer).toBe("GridPINN is in progress.");
+    expect(json.sources.map((s: { url: string }) => s.url)).toContain("/projects/gridpinn");
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(create.mock.calls[0][0].messages[0].content).toContain("<context>");
   });
 
-  it("rejects malformed JSON", async () => {
-    const res = await POST(req("{not json"));
-    expect(res.status).toBe(400);
-  });
-
-  it("rejects cross-origin requests", async () => {
-    const res = await POST(req(valid(), { origin: "http://evil.example", host: "localhost" }));
-    expect(res.status).toBe(403);
-    expect(send).not.toHaveBeenCalled();
-  });
-
-  it("rate limits repeated requests from one IP", async () => {
-    const headers = { "x-forwarded-for": "9.9.9.9" };
-    let last = 0;
-    for (let i = 0; i < 6; i++) last = (await POST(req(valid(), headers))).status;
-    expect(last).toBe(429);
-  });
-
-  it("returns a generic error when the email provider fails", async () => {
-    send.mockResolvedValue({ error: { message: "provider detail" } });
-    const res = await POST(req(valid()));
+  it("returns a generic error if the LLM call fails", async () => {
+    create.mockRejectedValue(new Error("boom"));
+    const res = await POST(ask("What is GridPINN?"));
     expect(res.status).toBe(502);
-    expect(JSON.stringify(await res.json())).not.toContain("provider detail");
   });
 });

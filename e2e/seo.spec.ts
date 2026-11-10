@@ -24,7 +24,7 @@ for (const path of ["/", "/about", "/projects/gridpinn", "/blog/physics-in-the-l
     await page.goto(path);
     await expect(page).toHaveTitle(/.+/);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
-    const expected = path === "/" ? /\/$/ : new RegExp(`${path}$`);
+    const expected = path === "/" ? /(:\d+)?\/?$/ : new RegExp(`${path}$`);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", expected);
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /.+/);
   });

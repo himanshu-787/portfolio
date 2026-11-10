@@ -19,7 +19,7 @@ export const experiencePreview = [
     role: "Machine Learning Researcher",
     org: "IIIT Raichur",
     period: "2023 - Present",
-    text: "Built ML projects across deep learning, federated learning and TinyML. [CONFIRM nature: lab, coursework or self-directed]",
+    text: "Built ML projects across deep learning, federated learning and TinyML.",
   },
   {
     role: "Teaching Assistant",
